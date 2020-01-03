@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import re
+import itertools
 
 import numpy as np
 import torch
@@ -12,9 +13,9 @@ from torchvision import datasets
 from torchvision import transforms
 import torch.onnx
 
-import utils
-from transformer_net import TransformerNet
-from vgg import Vgg16
+from . import utils
+from .transformer_net import TransformerNet
+from .vgg import Vgg16
 
 
 def check_paths(args):
@@ -111,8 +112,7 @@ def train(args):
 
     # save model
     transformer.eval().cpu()
-    save_model_filename = "epoch_" + str(args.epochs) + "_" + str(time.ctime()).replace(' ', '_') + "_" + str(
-        args.content_weight) + "_" + str(args.style_weight) + ".model"
+    save_model_filename = args.model_name
     save_model_path = os.path.join(args.save_model_dir, save_model_filename)
     torch.save(transformer.state_dict(), save_model_path)
 
@@ -205,6 +205,8 @@ def main():
                                   help="number of images after which the training loss is logged, default is 500")
     train_arg_parser.add_argument("--checkpoint-interval", type=int, default=2000,
                                   help="number of batches after which a checkpoint of the trained model will be created")
+    train_arg_parser.add_argument("--model-name", type=str, default="model.pth",
+                                  help="name of the model")
 
     eval_arg_parser = subparsers.add_parser("eval", help="parser for evaluation/stylizing arguments")
     eval_arg_parser.add_argument("--content-image", type=str, required=True,
