@@ -53,19 +53,29 @@ def train(args):
         transforms.ToTensor(),
         transforms.Lambda(lambda x: x.mul(255))
     ])
-    style = utils.load_image(args.style_image, size=args.style_size)
-    style = style_transform(style)
-    style = style.repeat(args.batch_size, 1, 1, 1).to(device)
+    gram_style = []
+    if(args.style_image_dir):
+        for img_path in os.listdir(args.style_image_dir):
+            style = utils.load_image(img_path, size=args.style_size)
+            style = style_transform(style)
+            style = style.repeat(args.batch_size, 1, 1, 1).to(device)
 
-    features_style = vgg(utils.normalize_batch(style))
-    gram_style = [utils.gram_matrix(y) for y in features_style]
+            features_style = vgg(utils.normalize_batch(style))
+            gram_style.extend([utils.gram_matrix(y) for y in features_style])
+    else:
+        style = utils.load_image(args.style_image, size=args.style_size)
+        style = style_transform(style)
+        style = style.repeat(args.batch_size, 1, 1, 1).to(device)
+
+        features_style = vgg(utils.normalize_batch(style))
+        gram_style.extend([utils.gram_matrix(y) for y in features_style])
 
     for e in range(args.epochs):
         transformer.train()
         agg_content_loss = 0.
         agg_style_loss = 0.
         count = 0
-        for batch_id, (x, _) in enumerate(train_loader):
+        for batch_id, (x, _) in enumerate(train_loader) if batch_id < args.subset_size:
             n_batch = len(x)
             count += n_batch
             optimizer.zero_grad()
