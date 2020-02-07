@@ -56,7 +56,7 @@ def train(args):
     gram_style = []
     if(args.style_image_dir):
         for img_path in os.listdir(args.style_image_dir):
-            style = utils.load_image(img_path, size=args.style_size)
+            style = utils.load_image(args.style_image_dir + "/" + img_path, size=args.style_size)
             style = style_transform(style)
             style = style.repeat(args.batch_size, 1, 1, 1).to(device)
 
@@ -75,7 +75,7 @@ def train(args):
         agg_content_loss = 0.
         agg_style_loss = 0.
         count = 0
-        for batch_id, (x, _) in enumerate(train_loader) if batch_id < args.subset_size:
+        for batch_id, (x, _) in enumerate(train_loader):
             n_batch = len(x)
             count += n_batch
             optimizer.zero_grad()
