@@ -3,7 +3,7 @@ from .neural_style.neural_style import stylize, train
 
 
 def main():
-    image_name = "skott.jpg"
+    image_name = "test2.jpg"
     g_model_name = "midasC"
     train_image = "midas2.jpg"
     train_dir = "skottc"
@@ -13,7 +13,7 @@ def main():
         output_image = "fast_neural_style/output/{}_styled_{}".format(g_model_name, image_name)
         model = "fast_neural_style/saved_models/{}.pth".format(g_model_name)
         content_scale = 1.5
-        cuda = 1
+        cuda = 0
         export_onnx = False
 
     class train_args:
